@@ -1,7 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Smartphone, HardDrive } from "lucide-react";
+import { ShoppingCart, Smartphone, HardDrive } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   model: string;
@@ -12,9 +15,25 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ model, storage, price, condition, image }: ProductCardProps) => {
-  const handleWhatsAppOrder = () => {
-    const message = `Hi! I'm interested in the ${condition === "brand-new" ? "Brand New" : "Pre-owned"} ${model} ${storage} for R${price.toLocaleString()}`;
-    window.open(`https://wa.me/27717273856?text=${encodeURIComponent(message)}`, "_blank");
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  const handleAddToCart = () => {
+    const product = { 
+      id: `${model}-${storage}-${condition}`,
+      model, 
+      storage, 
+      price, 
+      condition, 
+      image 
+    };
+    addToCart(product);
+    toast.success("Added to cart!", {
+      action: {
+        label: "View Cart",
+        onClick: () => navigate("/cart"),
+      },
+    });
   };
 
   return (
@@ -57,11 +76,11 @@ const ProductCard = ({ model, storage, price, condition, image }: ProductCardPro
           </div>
           
           <Button 
-            onClick={handleWhatsAppOrder}
+            onClick={handleAddToCart}
             className="bg-brand-orange hover:bg-brand-orange/90 text-white px-4 md:px-6 py-2 rounded-lg transition-all duration-300 w-full md:w-auto text-sm md:text-base"
           >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Order Now
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Add to Cart
           </Button>
         </div>
       </div>

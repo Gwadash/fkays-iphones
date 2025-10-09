@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Phone, MessageCircle } from "lucide-react";
+import { Phone, MessageCircle, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const { totalItems } = useCart();
+  const navigate = useNavigate();
+
   const handleWhatsAppClick = () => {
     window.open("https://wa.me/27717273856", "_blank");
   };
@@ -25,6 +30,18 @@ const Header = () => {
               <Phone className="h-4 w-4 text-brand-orange" />
               <span className="text-sm">0717273856 / 0602270998</span>
             </div>
+            <Button 
+              onClick={() => navigate("/cart")}
+              variant="outline"
+              className="relative"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-brand-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
             <Button 
               onClick={handleWhatsAppClick}
               className="bg-gradient-primary hover:shadow-hover transition-all duration-300"
