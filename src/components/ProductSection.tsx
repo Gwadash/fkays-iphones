@@ -38,7 +38,7 @@ const ProductSection = () => {
           </TabsList>
 
            <TabsContent value="brand-new">
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                {brandNewProducts.map((product) => (
                  <ProductCard
                    key={product.id}
@@ -53,7 +53,7 @@ const ProductSection = () => {
            </TabsContent>
 
            <TabsContent value="pre-owned">
-             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                {preOwnedProducts.map((product) => (
                  <ProductCard
                    key={product.id}
