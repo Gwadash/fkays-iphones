@@ -12,9 +12,10 @@ interface ProductCardProps {
   price: number;
   condition: "brand-new" | "pre-owned";
   image?: string;
+  discount?: number;
 }
 
-const ProductCard = ({ model, storage, price, condition, image }: ProductCardProps) => {
+const ProductCard = ({ model, storage, price, condition, image, discount }: ProductCardProps) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -23,7 +24,7 @@ const ProductCard = ({ model, storage, price, condition, image }: ProductCardPro
       id: `${model}-${storage}-${condition}`,
       model, 
       storage, 
-      price, 
+      price: discount ? price - discount : price,
       condition, 
       image 
     };
@@ -70,9 +71,23 @@ const ProductCard = ({ model, storage, price, condition, image }: ProductCardPro
         
         <div className="mt-auto space-y-4">
           <div>
-            <span className="text-2xl md:text-3xl font-bold text-brand-orange">
-              R{price.toLocaleString()}
-            </span>
+            {discount ? (
+              <div className="flex flex-col gap-1">
+                <span className="text-lg text-gray-400 line-through">
+                  R{price.toLocaleString()}
+                </span>
+                <span className="text-2xl md:text-3xl font-bold text-brand-orange">
+                  R{(price - discount).toLocaleString()}
+                </span>
+                <span className="text-sm font-semibold text-green-600">
+                  Save R{discount.toLocaleString()}
+                </span>
+              </div>
+            ) : (
+              <span className="text-2xl md:text-3xl font-bold text-brand-orange">
+                R{price.toLocaleString()}
+              </span>
+            )}
           </div>
           
           <Button 
