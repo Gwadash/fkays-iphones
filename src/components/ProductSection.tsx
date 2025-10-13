@@ -47,6 +47,7 @@ const ProductSection = () => {
                    price={product.price}
                    condition={product.condition}
                    image={product.image}
+                   discount={product.discount}
                  />
                ))}
              </div>
@@ -62,6 +63,7 @@ const ProductSection = () => {
                    price={product.price}
                    condition={product.condition}
                    image={product.image}
+                   discount={product.discount}
                  />
                ))}
              </div>
