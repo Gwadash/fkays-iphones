@@ -1,10 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { Phone, MessageCircle, ShoppingCart } from "lucide-react";
+import { Phone, MessageCircle, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const { totalItems } = useCart();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleWhatsAppClick = () => {
@@ -42,6 +50,36 @@ const Header = () => {
                 </span>
               )}
             </Button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <User className="h-4 w-4 mr-2" />
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate("/orders")}>
+                    <Package className="h-4 w-4 mr-2" />
+                    My Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                onClick={() => navigate("/auth")}
+                variant="outline"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Button>
+            )}
+            
             <Button 
               onClick={handleWhatsAppClick}
               className="bg-gradient-primary hover:shadow-hover transition-all duration-300"

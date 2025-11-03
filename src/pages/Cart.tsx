@@ -1,4 +1,5 @@
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
@@ -11,12 +12,19 @@ import Footer from "@/components/Footer";
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, totalPrice } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
       toast.error("Your cart is empty");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please sign in to continue with checkout");
+      navigate("/auth");
       return;
     }
 
