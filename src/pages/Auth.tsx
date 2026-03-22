@@ -58,6 +58,7 @@ const Auth = () => {
           firstName: validated.firstName,
           lastName: validated.lastName,
           phone: validated.phone,
+          address: validated.address,
         }
       );
 
