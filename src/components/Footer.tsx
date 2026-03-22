@@ -59,8 +59,8 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-gray-700 pt-8 text-center">
-          <p className="text-gray-400">
-            © {currentYear} FkayPlug. All rights reserved. Built with ❤️ for quality iPhone sales.
+          <p className="text-gray-400 whitespace-pre-wrap">
+            © {currentYear} FkayPlug. All rights reserved. Built for quality iPhone sales.{"\n\n"}
           </p>
         </div>
       </div>
