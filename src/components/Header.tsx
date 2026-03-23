@@ -85,9 +85,10 @@ const Header = () => {
             <Button 
               onClick={handleWhatsAppClick}
               className="bg-gradient-primary hover:shadow-hover transition-all duration-300"
+              size="icon"
             >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              WhatsApp
+              <MessageCircle className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">WhatsApp</span>
             </Button>
           </div>
         </div>
