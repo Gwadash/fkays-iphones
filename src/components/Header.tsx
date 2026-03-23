@@ -33,7 +33,7 @@ const Header = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <div className="hidden md:flex items-center gap-2 text-brand-gray">
               <Phone className="h-4 w-4 text-brand-orange" />
               <span className="text-sm">0717273856 / 0602270998</span>
