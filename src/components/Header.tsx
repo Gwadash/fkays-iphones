@@ -74,9 +74,11 @@ const Header = () => {
               <Button 
                 onClick={() => navigate("/auth")}
                 variant="outline"
+                size="icon"
+                className="md:w-auto md:px-4"
               >
-                <User className="h-4 w-4 mr-2" />
-                Sign In
+                <User className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Sign In</span>
               </Button>
             )}
             
