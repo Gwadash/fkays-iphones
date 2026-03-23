@@ -33,7 +33,7 @@ const Header = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <div className="hidden md:flex items-center gap-2 text-brand-gray">
               <Phone className="h-4 w-4 text-brand-orange" />
               <span className="text-sm">0717273856 / 0602270998</span>
@@ -74,18 +74,21 @@ const Header = () => {
               <Button 
                 onClick={() => navigate("/auth")}
                 variant="outline"
+                size="icon"
+                className="md:w-auto md:px-4"
               >
-                <User className="h-4 w-4 mr-2" />
-                Sign In
+                <User className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Sign In</span>
               </Button>
             )}
             
             <Button 
               onClick={handleWhatsAppClick}
               className="bg-gradient-primary hover:shadow-hover transition-all duration-300"
+              size="icon"
             >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              WhatsApp
+              <MessageCircle className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">WhatsApp</span>
             </Button>
           </div>
         </div>
