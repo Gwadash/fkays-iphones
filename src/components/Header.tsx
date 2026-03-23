@@ -74,8 +74,7 @@ const Header = () => {
               <Button 
                 onClick={() => navigate("/auth")}
                 variant="outline"
-                size="icon"
-                className="md:w-auto md:px-4"
+                className="h-10 w-10 p-0 md:w-auto md:px-4"
               >
                 <User className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">Sign In</span>
@@ -84,8 +83,7 @@ const Header = () => {
             
             <Button 
               onClick={handleWhatsAppClick}
-              className="bg-gradient-primary hover:shadow-hover transition-all duration-300"
-              size="icon"
+              className="bg-gradient-primary hover:shadow-hover transition-all duration-300 h-10 w-10 p-0 md:w-auto md:px-4"
             >
               <MessageCircle className="h-4 w-4 md:mr-2" />
               <span className="hidden md:inline">WhatsApp</span>
