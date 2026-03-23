@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      customers: {
+        Row: {
+          auth_uid: string
+          created_at: string
+          email: string | null
+          id: string
+        }
+        Insert: {
+          auth_uid: string
+          created_at?: string
+          email?: string | null
+          id?: string
+        }
+        Update: {
+          auth_uid?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_id: string
+          id: string
+          metadata: Json | null
+          status: string
+          stripe_payment_intent_id: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_id: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string
