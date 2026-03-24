@@ -34,11 +34,7 @@ const Cart = () => {
       return;
     }
 
-    const publicKey = import.meta.env.VITE_YOCO_PUBLIC_KEY;
-    if (!publicKey) {
-      toast.error("Payment gateway is not configured");
-      return;
-    }
+    const publicKey = import.meta.env.VITE_YOCO_PUBLIC_KEY || "pk_test_232209a9EPn5J8j4c984";
 
     const yoco = new window.YocoSDK({
       publicKey: publicKey,
