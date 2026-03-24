@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -12,10 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    const { token, amountInCents, items } = await req.json();
+    const { amountInCents, items } = await req.json();
 
-    if (!token) throw new Error("No payment token provided");
     if (!amountInCents) throw new Error("No amount provided");
+    if (!items || items.length === 0) throw new Error("No items provided");
 
     const authHeader = req.headers.get("authorization");
     if (!authHeader) throw new Error("No authorization header");
@@ -29,30 +29,39 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) throw new Error("Unauthorized");
 
-    // Charge using Yoco API
+    // Create checkout session using Yoco Checkout API v2
     const yocoSecretKey = Deno.env.get("YOCO_SECRET_KEY");
     if (!yocoSecretKey) throw new Error("Yoco secret key not configured");
 
-    const chargeResponse = await fetch("https://online.yoco.com/v1/charges/", {
+    const origin = req.headers.get("origin") || "https://fkayplug.lovable.app";
+
+    const checkoutResponse = await fetch("https://payments.yoco.com/api/checkouts", {
       method: "POST",
       headers: {
-        "X-Auth-Secret-Key": yocoSecretKey,
+        "Authorization": `Bearer ${yocoSecretKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        token: token,
-        amountInCents: amountInCents,
+        amount: amountInCents,
         currency: "ZAR",
+        successUrl: `${origin}/payment-success?checkoutId={checkoutId}`,
+        cancelUrl: `${origin}/cart`,
+        failureUrl: `${origin}/cart?payment=failed`,
+        metadata: {
+          user_id: user.id,
+          items: JSON.stringify(items),
+        },
       }),
     });
 
-    const chargeResult = await chargeResponse.json();
+    const checkoutResult = await checkoutResponse.json();
 
-    if (!chargeResponse.ok || chargeResult.errorType) {
-      throw new Error(chargeResult.displayMessage || "Payment failed");
+    if (!checkoutResponse.ok) {
+      console.error("Yoco checkout creation failed:", checkoutResult);
+      throw new Error(checkoutResult.message || checkoutResult.displayMessage || "Failed to create checkout");
     }
 
-    console.log("Yoco charge successful:", chargeResult.id);
+    console.log("Yoco checkout created:", checkoutResult.id);
 
     // Get or create customer record
     const { data: existingCustomer } = await supabaseClient
@@ -77,7 +86,7 @@ serve(async (req) => {
       }
     }
 
-    // Create order record
+    // Create pending order record
     if (customerId) {
       const { error: orderError } = await supabaseClient
         .from("orders")
@@ -85,42 +94,31 @@ serve(async (req) => {
           customer_id: customerId,
           total_amount: amountInCents,
           currency: "zar",
-          status: "completed",
-          stripe_payment_intent_id: chargeResult.id, // reusing field for yoco charge id
+          status: "pending",
+          stripe_payment_intent_id: checkoutResult.id,
           metadata: {
             items: items,
             payment_gateway: "yoco",
-            yoco_charge_id: chargeResult.id,
+            yoco_checkout_id: checkoutResult.id,
           },
         });
 
       if (orderError) {
         console.error("Error creating order:", orderError);
       } else {
-        console.log("Order created successfully");
+        console.log("Pending order created successfully");
       }
     }
 
-    // Send email notification
-    try {
-      const itemsList = items.map((i: any) => `${i.name} x${i.quantity}`).join(", ");
-      await supabaseClient.functions.invoke("send-order-email", {
-        body: {
-          customerEmail: user.email,
-          items: items,
-          totalAmount: amountInCents / 100,
-        },
-      });
-    } catch (emailErr) {
-      console.error("Email notification failed:", emailErr);
-    }
-
-    return new Response(JSON.stringify({ success: true, chargeId: chargeResult.id }), {
+    return new Response(JSON.stringify({ 
+      redirectUrl: checkoutResult.redirectUrl,
+      checkoutId: checkoutResult.id,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error("Yoco charge error:", error);
+    console.error("Yoco checkout error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
