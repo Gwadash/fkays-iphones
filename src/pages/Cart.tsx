@@ -10,13 +10,19 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+declare global {
+  interface Window {
+    YocoSDK: any;
+  }
+}
+
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, totalPrice } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCheckout = async () => {
+  const handleYocoCheckout = async () => {
     if (cartItems.length === 0) {
       toast.error("Your cart is empty");
       return;
@@ -28,30 +34,60 @@ const Cart = () => {
       return;
     }
 
-    setIsProcessing(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { 
-          items: cartItems.map(item => ({
+    const publicKey = import.meta.env.VITE_YOCO_PUBLIC_KEY;
+    if (!publicKey) {
+      toast.error("Payment gateway is not configured");
+      return;
+    }
+
+    const yoco = new window.YocoSDK({
+      publicKey: publicKey,
+    });
+
+    const amountInCents = totalPrice * 100;
+
+    yoco.showPopup({
+      amountInCents,
+      currency: "ZAR",
+      name: "FkayPlug",
+      description: `${cartItems.length} item(s)`,
+      callback: async (result: any) => {
+        if (result.error) {
+          toast.error(result.error.message || "Payment failed");
+          return;
+        }
+
+        // Payment token received, charge on server
+        setIsProcessing(true);
+        try {
+          const items = cartItems.map(item => ({
             id: item.id,
             name: `${item.model} ${item.storage} (${item.condition})`,
-            price: item.price * 100, // Convert to cents
+            price: item.price * 100,
             quantity: item.quantity,
-          }))
-        },
-      });
+          }));
 
-      if (error) throw error;
+          const { data, error } = await supabase.functions.invoke("yoco-charge", {
+            body: {
+              token: result.id,
+              amountInCents,
+              items,
+            },
+          });
 
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error("Failed to start checkout. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+
+          toast.success("Payment successful!");
+          navigate("/payment-success");
+        } catch (error: any) {
+          console.error("Charge error:", error);
+          toast.error(error.message || "Failed to process payment. Please try again.");
+        } finally {
+          setIsProcessing(false);
+        }
+      },
+    });
   };
 
   if (cartItems.length === 0) {
@@ -153,11 +189,11 @@ const Cart = () => {
                 </div>
               </div>
               <Button
-                onClick={handleCheckout}
+                onClick={handleYocoCheckout}
                 disabled={isProcessing}
                 className="w-full bg-brand-orange hover:bg-brand-orange/90"
               >
-                {isProcessing ? "Processing..." : "Proceed to Checkout"}
+                {isProcessing ? "Processing..." : "Pay with Yoco"}
               </Button>
               <Button
                 variant="outline"
