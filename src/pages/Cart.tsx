@@ -10,12 +10,6 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-declare global {
-  interface Window {
-    YocoSDK: any;
-  }
-}
-
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, totalPrice } = useCart();
   const { user } = useAuth();
@@ -34,56 +28,38 @@ const Cart = () => {
       return;
     }
 
-    const publicKey = import.meta.env.VITE_YOCO_PUBLIC_KEY || "pk_test_232209a9EPn5J8j4c984";
+    setIsProcessing(true);
+    try {
+      const amountInCents = totalPrice * 100;
+      const items = cartItems.map(item => ({
+        id: item.id,
+        name: `${item.model} ${item.storage} (${item.condition})`,
+        price: item.price * 100,
+        quantity: item.quantity,
+      }));
 
-    const yoco = new window.YocoSDK({
-      publicKey: publicKey,
-    });
+      const { data, error } = await supabase.functions.invoke("yoco-charge", {
+        body: {
+          amountInCents,
+          items,
+        },
+      });
 
-    const amountInCents = totalPrice * 100;
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-    yoco.showPopup({
-      amountInCents,
-      currency: "ZAR",
-      name: "FkayPlug",
-      description: `${cartItems.length} item(s)`,
-      callback: async (result: any) => {
-        if (result.error) {
-          toast.error(result.error.message || "Payment failed");
-          return;
-        }
-
-        // Payment token received, charge on server
-        setIsProcessing(true);
-        try {
-          const items = cartItems.map(item => ({
-            id: item.id,
-            name: `${item.model} ${item.storage} (${item.condition})`,
-            price: item.price * 100,
-            quantity: item.quantity,
-          }));
-
-          const { data, error } = await supabase.functions.invoke("yoco-charge", {
-            body: {
-              token: result.id,
-              amountInCents,
-              items,
-            },
-          });
-
-          if (error) throw error;
-          if (data?.error) throw new Error(data.error);
-
-          toast.success("Payment successful!");
-          navigate("/payment-success");
-        } catch (error: any) {
-          console.error("Charge error:", error);
-          toast.error(error.message || "Failed to process payment. Please try again.");
-        } finally {
-          setIsProcessing(false);
-        }
-      },
-    });
+      if (data?.redirectUrl) {
+        // Redirect to Yoco hosted checkout page
+        window.location.href = data.redirectUrl;
+      } else {
+        throw new Error("No redirect URL received from payment gateway");
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast.error(error.message || "Failed to initiate checkout. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (cartItems.length === 0) {
