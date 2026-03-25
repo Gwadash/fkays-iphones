@@ -110,9 +110,13 @@ serve(async (req) => {
       }
     }
 
+    // Append checkoutId to the redirect URL's success callback
+    const redirectUrl = checkoutResult.redirectUrl;
+    const checkoutId = checkoutResult.id;
+
     return new Response(JSON.stringify({ 
-      redirectUrl: checkoutResult.redirectUrl,
-      checkoutId: checkoutResult.id,
+      redirectUrl,
+      checkoutId,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
