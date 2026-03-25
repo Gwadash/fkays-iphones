@@ -48,9 +48,11 @@ const Cart = () => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      if (data?.redirectUrl) {
-        // Redirect to Yoco hosted checkout page
-        window.location.href = data.redirectUrl;
+      if (data?.redirectUrl && data?.checkoutId) {
+        // Redirect to Yoco hosted checkout page with checkoutId for verification
+        window.location.href = `${data.redirectUrl}`;
+        // Store checkoutId for verification on return
+        localStorage.setItem("yoco_checkout_id", data.checkoutId);
       } else {
         throw new Error("No redirect URL received from payment gateway");
       }
