@@ -13,6 +13,8 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { clearCart } = useCart();
+  const { user } = useAuth();
+  const { clearCart } = useCart();
   const [verifying, setVerifying] = useState(true);
   const [verified, setVerified] = useState(false);
   const hasRun = useState(false);
