@@ -44,7 +44,7 @@ serve(async (req) => {
       body: JSON.stringify({
         amount: amountInCents,
         currency: "ZAR",
-        successUrl: `${origin}/payment-success?checkoutId={checkoutId}`,
+        successUrl: `${origin}/payment-success`,
         cancelUrl: `${origin}/cart`,
         failureUrl: `${origin}/cart?payment=failed`,
         metadata: {
