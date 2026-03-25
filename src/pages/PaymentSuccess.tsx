@@ -18,7 +18,7 @@ const PaymentSuccess = () => {
   const [verified, setVerified] = useState(false);
 
   useEffect(() => {
-    const checkoutId = searchParams.get("checkoutId");
+    const checkoutId = searchParams.get("checkoutId") || searchParams.get("id") || localStorage.getItem("yoco_checkout_id");
 
     if (!checkoutId || !user) {
       setVerifying(false);
