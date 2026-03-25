@@ -38,6 +38,7 @@ const PaymentSuccess = () => {
         if (data?.completed) {
           setVerified(true);
           clearCart();
+          localStorage.removeItem("yoco_checkout_id");
         } else {
           setVerified(false);
         }
