@@ -16,14 +16,17 @@ const PaymentSuccess = () => {
   const { user } = useAuth();
   const [verifying, setVerifying] = useState(true);
   const [verified, setVerified] = useState(false);
+  const hasRun = useState(false);
 
   useEffect(() => {
+    if (hasRun[0]) return;
+    hasRun[0] = true;
+
     const checkoutId = searchParams.get("checkoutId") || searchParams.get("id") || localStorage.getItem("yoco_checkout_id");
 
     if (!checkoutId || !user) {
       setVerifying(false);
       setVerified(false);
-      clearCart();
       return;
     }
 
@@ -51,7 +54,8 @@ const PaymentSuccess = () => {
     };
 
     verifyPayment();
-  }, [searchParams, user, clearCart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   if (verifying) {
     return (
