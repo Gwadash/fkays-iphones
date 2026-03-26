@@ -11,9 +11,9 @@ const Hero = () => {
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            IF YOU CAN'T BEAT US
+            THE BIGGEST PLUG
             <br />
-            <span className="text-yellow-300">JOIN US</span>
+            <span className="text-yellow-300">IN THE MARKET</span>
           </h2>
           
           <p className="text-xl md:text-2xl mb-8 text-white/90">
